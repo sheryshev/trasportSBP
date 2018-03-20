@@ -1,0 +1,29 @@
+import urllib.request, urllib.error
+import json
+from urllib.parse import urlencode
+'''
+После слова "stop" указать номер остановки.
+Приведен пример остановки "10 КМ"
+'''
+url = 'http://transport.orgp.spb.ru/Portal/transport/stop/1282/arriving' 
+user_agent = 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/42.0.2311.135 Safari/537.36'
+data = {
+    'sEcho':'1',
+    'iColumns':'5',
+    'sColumns':'index,routeNumber,timeToArrive,parkNumber,wheelchair',
+    'iDisplayStart':'0',
+    'iDisplayLength':'-1',
+    'sNames':'index,routeNumber,timeToArrive,parkNumber,wheelchair'
+    }
+headers = {'X-Requested-With':'XMLHttpRequest','User-Agent':user_agent}
+req = urllib.request.Request(url, urlencode(data).encode('utf-8'), headers)
+response = urllib.request.urlopen(req)
+result = json.loads(response.read().decode('utf-8'))
+for i, line in enumerate(result['aaData']):
+    index, route, time, parknumber, wheelchair = line
+    if wheelchair:
+        wheelchair = "+"
+    else:
+        wheelchair = " "
+    out = '#: %s | Route: %s | TimeToArrive: %s min | ParkNumber: %s | Wheelchair: %s' % (i, route, time, parknumber, wheelchair)
+    print(out)
